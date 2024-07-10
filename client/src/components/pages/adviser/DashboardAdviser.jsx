@@ -17,6 +17,7 @@ const DashboardAdviser = () => {
     <div>
       <h1>Adviser Dashboard</h1>
       <p>Welcome, {user.name}</p>
+      <p>Specializations: {user.specializations.join(', ')}</p>
       <img src={`http://localhost:5000/public/uploads/${user.profileImage}`} alt="Profile" />
       <button onClick={handleLogout}>Logout</button>
     </div>

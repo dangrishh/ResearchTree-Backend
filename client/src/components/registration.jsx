@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Select from 'react-select';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -8,8 +9,23 @@ const Register = () => {
     password: '',
     role: 'student',
     profileImage: null,
+    specializations: [],
   });
+  const [specializationsOptions, setSpecializationsOptions] = useState([]);
   const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const fetchSpecializations = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/auth/specializations');
+        setSpecializationsOptions(response.data.map(spec => ({ value: spec.name, label: spec.name })));
+      } catch (error) {
+        console.error('Error fetching specializations:', error);
+      }
+    };
+
+    fetchSpecializations();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -17,6 +33,10 @@ const Register = () => {
 
   const handleFileChange = (e) => {
     setFormData({ ...formData, profileImage: e.target.files[0] });
+  };
+
+  const handleSpecializationsChange = (selectedOptions) => {
+    setFormData({ ...formData, specializations: selectedOptions.map(option => option.value) });
   };
 
   const handleSubmit = async (e) => {
@@ -28,6 +48,7 @@ const Register = () => {
     data.append('password', formData.password);
     data.append('role', formData.role);
     data.append('profileImage', formData.profileImage);
+    data.append('specializations', JSON.stringify(formData.specializations));
 
     try {
       const response = await axios.post('http://localhost:5000/api/auth/register', data);
@@ -63,6 +84,20 @@ const Register = () => {
           <option value="panelist">Panelist</option>
         </select>
       </label>
+      <br />
+      {formData.role === 'adviser' && (
+        <label>
+          Specializations:
+          <Select
+            isMulti
+            name="specializations"
+            options={specializationsOptions}
+            className="basic-multi-select"
+            classNamePrefix="select"
+            onChange={handleSpecializationsChange}
+          />
+        </label>
+      )}
       <br />
       <label>
         Profile Image:

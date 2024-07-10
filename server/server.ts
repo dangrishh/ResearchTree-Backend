@@ -20,6 +20,7 @@ app.use('/api/admin', adminRoutes);
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = 'mongodb+srv://LSPU:admin@research-management-por.m3kzu45.mongodb.net/ResearchTru?retryWrites=true&w=majority&appName=Research-Management-Portal';
 
+
 mongoose.connect(MONGO_URI)
   .then(() => {
     console.log('Connected to MongoDB');

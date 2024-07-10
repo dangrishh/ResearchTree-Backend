@@ -5,6 +5,8 @@ const AdminDashboard = () => {
   const [admin, setAdmin] = useState(null);
   const [pendingUsers, setPendingUsers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
+  const [specializations, setSpecializations] = useState([]);
+  const [newSpecialization, setNewSpecialization] = useState('');
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -30,8 +32,18 @@ const AdminDashboard = () => {
       }
     };
 
+    const fetchSpecializations = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/auth/specializations');
+        setSpecializations(response.data);
+      } catch (error) {
+        console.error('Error fetching specializations:', error);
+      }
+    };
+
     fetchPendingUsers();
     fetchAllUsers();
+    fetchSpecializations();
   }, []);
 
   const handleLogout = () => {
@@ -71,6 +83,34 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleAddSpecialization = async () => {
+    try {
+      const response = await axios.post('http://localhost:5000/api/auth/specializations', { name: newSpecialization });
+      setSpecializations([...specializations, response.data]);
+      setNewSpecialization('');
+    } catch (error) {
+      console.error('Error adding specialization:', error);
+    }
+  };
+
+  const handleEditSpecialization = async (id, name) => {
+    try {
+      const response = await axios.put(`http://localhost:5000/api/auth/specializations/${id}`, { name });
+      setSpecializations(specializations.map(spec => spec._id === id ? response.data : spec));
+    } catch (error) {
+      console.error('Error editing specialization:', error);
+    }
+  };
+
+  const handleDeleteSpecialization = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/auth/specializations/${id}`);
+      setSpecializations(specializations.filter(spec => spec._id !== id));
+    } catch (error) {
+      console.error('Error deleting specialization:', error);
+    }
+  };
+
   if (!admin) {
     return <div>Loading...</div>;
   }
@@ -82,7 +122,7 @@ const AdminDashboard = () => {
       <p className="text-xl mb-2">Welcome, {admin.name}</p>
       {admin.profileImage && <p><img className="w-32 h-32 rounded-full" src={`http://localhost:5000${admin.profileImage}`} alt="Profile" /></p>}
       <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600" onClick={handleLogout}>Logout</button>
-      
+
       <div className="mt-8 w-full max-w-2xl">
         <h3 className="text-2xl font-bold mb-4">Pending Users</h3>
         {pendingUsers.map(user => (
@@ -90,6 +130,7 @@ const AdminDashboard = () => {
             <p>Name: {user.name}</p>
             <p>Email: {user.email}</p>
             <p>Role: {user.role}</p>
+            <p>Specializations: {user.specializations.join(', ')}</p>
             {user.profileImage && <img className="w-16 h-16 rounded-full" src={`http://localhost:5000/public/uploads/${user.profileImage}`} alt="Profile" />}
             <div className="mt-4">
               <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 mr-2" onClick={() => handleApprove(user._id)}>Approve</button>
@@ -104,10 +145,32 @@ const AdminDashboard = () => {
             <p>Name: {user.name}</p>
             <p>Email: {user.email}</p>
             <p>Role: {user.role}</p>
+            <p>Specializations: {user.specializations.join(', ')}</p>
             {user.profileImage && <img className="w-16 h-16 rounded-full" src={`http://localhost:5000/public/uploads/${user.profileImage}`} alt="Profile" />}
             <div className="mt-4">
               <button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600" onClick={() => handleDelete(user._id)}>Delete</button>
             </div>
+          </div>
+        ))}
+
+        <h3 className="text-2xl font-bold mb-4">Manage Specializations</h3>
+        <div>
+          <input 
+            type="text" 
+            value={newSpecialization} 
+            onChange={(e) => setNewSpecialization(e.target.value)} 
+            placeholder="Add new specialization" 
+          />
+          <button onClick={handleAddSpecialization}>Add</button>
+        </div>
+        {specializations.map(spec => (
+          <div key={spec._id} className="border p-4 mb-4 flex justify-between items-center">
+            <input 
+              type="text" 
+              value={spec.name} 
+              onChange={(e) => handleEditSpecialization(spec._id, e.target.value)} 
+            />
+            <button onClick={() => handleDeleteSpecialization(spec._id)}>Delete</button>
           </div>
         ))}
       </div>

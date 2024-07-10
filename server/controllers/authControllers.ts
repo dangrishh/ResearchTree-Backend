@@ -2,9 +2,11 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
+import Specialization from '../models/Specialization';
 
 export const registration = async (req: Request, res: Response) => {
   const { name, email, password, role } = req.body;
+  const specializations = JSON.parse(req.body.specializations);
   const profileImage = (req as any).file?.filename;
 
   try {
@@ -21,7 +23,8 @@ export const registration = async (req: Request, res: Response) => {
       password: hashedPassword,
       role,
       profileImage,
-      isApproved: false, // Set default approval status to false
+      specializations,
+      isApproved: false,
     });
 
     await newUser.save();
@@ -58,4 +61,50 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
+export const getSpecializations = async (req: Request, res: Response) => {
+  try {
+    const specializations = await Specialization.find();
+    res.status(200).json(specializations);
+  } catch (error) {
+    res.status(500).json({ message: 'Something went wrong', error });
+  }
+};
+
+export const addSpecialization = async (req: Request, res: Response) => {
+  const { name } = req.body;
+  if (!name) {
+    return res.status(400).json({ message: 'Specialization name is required' });
+  }
+
+  try {
+    const newSpecialization = new Specialization({ name });
+    await newSpecialization.save();
+    res.status(201).json(newSpecialization);
+  } catch (error) {
+    console.error('Error adding specialization:', error);
+    res.status(500).json({ message: 'Something went wrong', error });
+  }
+};
+
+
+export const updateSpecialization = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { name } = req.body;
+  try {
+    const updatedSpecialization = await Specialization.findByIdAndUpdate(id, { name }, { new: true });
+    res.status(200).json(updatedSpecialization);
+  } catch (error) {
+    res.status(500).json({ message: 'Something went wrong', error });
+  }
+};
+
+export const deleteSpecialization = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    await Specialization.findByIdAndDelete(id);
+    res.status(200).json({ message: 'Specialization deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Something went wrong', error });
+  }
+};
 
