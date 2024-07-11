@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import Specialization from '../models/Specialization';
+import Proposal from '../models/Proposal';
+import { analyzeProposal } from '../utils/nlp';
 
 export const registration = async (req: Request, res: Response) => {
   const { name, email, password, role } = req.body;
@@ -58,6 +60,55 @@ export const login = async (req: Request, res: Response) => {
     res.status(200).json({ token, user });
   } catch (error) {
     res.status(500).json({ message: 'Something went wrong', error });
+  }
+};
+
+// Create a new proposal
+export const createProposal = async (req: Request, res: Response) => {
+  const { userId, proposalText } = req.body;
+
+  if (!userId || !proposalText) {
+    return res.status(400).json({ message: 'userId and proposalText are required' });
+  }
+
+  try {
+    const newProposal = await Proposal.create({ userId, proposalText });
+    console.log('New proposal created:', newProposal);
+
+    const advisors = await User.find({ role: 'adviser', isApproved: true });
+    console.log('Advisors fetched:', advisors);
+
+    const topAdvisors = analyzeProposal(proposalText, advisors); // Analyze proposal to get top advisers
+    console.log('Top advisors identified:', topAdvisors);
+
+    res.status(201).json({ proposal: newProposal, topAdvisors });
+  } catch (error) {
+    console.error('Error creating proposal:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+// Get all proposals
+export const getAllProposals = async (req: Request, res: Response) => {
+  try {
+    const proposals = await Proposal.find().populate('userId', 'name email');
+    res.json(proposals);
+  } catch (error) {
+    console.error('Error fetching proposals:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+// Get proposals by user ID
+export const getProposalsByUserId = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  try {
+    const proposals = await Proposal.find({ userId }).populate('userId', 'name email');
+    res.json(proposals);
+  } catch (error) {
+    console.error('Error fetching proposals by user ID:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 

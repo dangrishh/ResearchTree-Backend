@@ -1,5 +1,15 @@
 import express, { Router } from 'express';
-import { registration, login, getSpecializations, addSpecialization, updateSpecialization, deleteSpecialization } from '../controllers/authControllers';
+import { 
+    registration, 
+    login, 
+    getSpecializations, 
+    addSpecialization, 
+    updateSpecialization, 
+    deleteSpecialization,
+    createProposal, 
+    getAllProposals, 
+    getProposalsByUserId 
+} from '../controllers/authControllers';
 
 import upload from '../middleware/upload';
 
@@ -12,6 +22,11 @@ router.get('/specializations', getSpecializations);
 router.post('/specializations', addSpecialization);
 router.put('/specializations/:id', updateSpecialization);
 router.delete('/specializations/:id', deleteSpecialization);
+
+
+router.post('/submit-proposal', createProposal);
+router.get('/proposals', getAllProposals);
+router.get('/proposals/:userId', getProposalsByUserId);
 
 
 export default router;
