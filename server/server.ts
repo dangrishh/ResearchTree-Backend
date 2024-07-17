@@ -2,8 +2,9 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import path from 'path';
-import authRoutes from './routes/authRoutes';
+import advicerRoutes from './routes/advicerRoutes';
 import adminRoutes from './routes/adminRoutes';
+import studentRoutes from './routes/studentRoutes'
 import bodyParser from 'body-parser';
 
 const app = express();
@@ -14,7 +15,8 @@ app.use(cors());
 app.use(express.json());
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-app.use('/api/auth', authRoutes);
+app.use('/api/student', studentRoutes);
+app.use('/api/advicer', advicerRoutes);
 app.use('/api/admin', adminRoutes);
 
 const PORT = process.env.PORT || 5000;

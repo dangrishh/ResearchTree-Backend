@@ -4,7 +4,6 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import Specialization from '../models/Specialization';
 import Proposal from '../models/Proposal';
-import { analyzeProposal } from '../utils/nlp';
 
 export const registration = async (req: Request, res: Response) => {
   const { name, email, password, role } = req.body;
@@ -63,30 +62,8 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-// Create a new proposal
-export const createProposal = async (req: Request, res: Response) => {
-  const { userId, proposalText } = req.body;
 
-  if (!userId || !proposalText) {
-    return res.status(400).json({ message: 'userId and proposalText are required' });
-  }
-
-  try {
-    const newProposal = await Proposal.create({ userId, proposalText });
-    console.log('New proposal created:', newProposal);
-
-    const advisors = await User.find({ role: 'adviser', isApproved: true });
-    console.log('Advisors fetched:', advisors);
-
-    const topAdvisors = analyzeProposal(proposalText, advisors); // Analyze proposal to get top advisers
-    console.log('Top advisors identified:', topAdvisors);
-
-    res.status(201).json({ proposal: newProposal, topAdvisors });
-  } catch (error) {
-    console.error('Error creating proposal:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-};
+/* admin & advicer */
 
 // Get all proposals
 export const getAllProposals = async (req: Request, res: Response) => {
@@ -112,6 +89,36 @@ export const getProposalsByUserId = async (req: Request, res: Response) => {
   }
 };
 
+  export const listStudentsManage = async (req: Request, res: Response) => {
+  const { advisorId } = req.params;
+
+  try {
+    const students = await User.find({ chosenAdvisor: advisorId, advisorStatus: { $exists: false } });
+    res.status(200).json({ students });
+  } catch (error) {
+    console.error('Error fetching students:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+
+export const updateStatusStudent = async (req: Request, res: Response) => {
+  const { studentId, status } = req.body;
+
+  if (!studentId || !status) {
+    return res.status(400).json({ message: 'studentId and status are required' });
+  }
+
+  try {
+    await User.findByIdAndUpdate(studentId, { advisorStatus: status });
+    res.status(200).json({ message: 'Student status updated successfully' });
+  } catch (error) {
+    console.error('Error updating student status:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+/* Specialization to choose */
 export const getSpecializations = async (req: Request, res: Response) => {
   try {
     const specializations = await Specialization.find();
@@ -121,41 +128,41 @@ export const getSpecializations = async (req: Request, res: Response) => {
   }
 };
 
-export const addSpecialization = async (req: Request, res: Response) => {
-  const { name } = req.body;
-  if (!name) {
-    return res.status(400).json({ message: 'Specialization name is required' });
-  }
+
+export const getAdviserStudents = async (req: Request, res: Response) => {
+  const { advisorId } = req.params;
 
   try {
-    const newSpecialization = new Specialization({ name });
-    await newSpecialization.save();
-    res.status(201).json(newSpecialization);
+    const acceptedStudents = await User.find({ chosenAdvisor: advisorId, advisorStatus: 'accepted' });
+    const declinedStudents = await User.find({ chosenAdvisor: advisorId, advisorStatus: 'declined' });
+    const studentsToManage = await User.find({ chosenAdvisor: advisorId, advisorStatus: null });
+
+    res.status(200).json({ acceptedStudents, declinedStudents, studentsToManage });
   } catch (error) {
-    console.error('Error adding specialization:', error);
-    res.status(500).json({ message: 'Something went wrong', error });
+    console.error('Error fetching students:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
+export const respondToStudent = async (req: Request, res: Response) => {
+  const { studentId, advisorId, status } = req.body;
 
-export const updateSpecialization = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { name } = req.body;
+  if (!studentId || !advisorId || !status) {
+    return res.status(400).json({ message: 'studentId, advisorId, and status are required' });
+  }
+
   try {
-    const updatedSpecialization = await Specialization.findByIdAndUpdate(id, { name }, { new: true });
-    res.status(200).json(updatedSpecialization);
+    const student = await User.findById(studentId);
+    if (!student || student.chosenAdvisor.toString() !== advisorId) {
+      return res.status(404).json({ message: 'Student not found or advisor mismatch' });
+    }
+    
+    student.advisorStatus = status;
+    await student.save();
+    
+    res.status(200).json({ message: `Student ${status} successfully` });
   } catch (error) {
-    res.status(500).json({ message: 'Something went wrong', error });
+    console.error('Error responding to student:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
-
-export const deleteSpecialization = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  try {
-    await Specialization.findByIdAndDelete(id);
-    res.status(200).json({ message: 'Specialization deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ message: 'Something went wrong', error });
-  }
-};
-

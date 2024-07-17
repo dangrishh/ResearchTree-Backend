@@ -1,4 +1,4 @@
-import { Schema, model, Document } from 'mongoose';
+import mongoose, { Schema, model, Document } from 'mongoose';
 
 export interface IUser extends Document {
   name: string;
@@ -8,6 +8,9 @@ export interface IUser extends Document {
   profileImage: string;
   specializations: string[];
   isApproved: boolean;
+  chosenAdvisor: Schema.Types.ObjectId;
+  advisorStatus: 'accepted' | 'declined';
+  declinedAdvisors: Schema.Types.ObjectId[];
 }
 
 const userSchema = new Schema<IUser>({
@@ -17,7 +20,10 @@ const userSchema = new Schema<IUser>({
   role: { type: String, required: true, enum: ['student', 'adviser', 'panelist'] },
   profileImage: { type: String, required: false },
   specializations: { type: [String], required: function() { return this.role === 'adviser'; } },
-  isApproved: { type: Boolean, default: false }
+  isApproved: { type: Boolean, default: false },
+  chosenAdvisor: { type: Schema.Types.ObjectId, ref: 'User' },
+  advisorStatus: { type: String, enum: ['accepted', 'declined'] },
+  declinedAdvisors: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 });
 
 const User = model<IUser>('User', userSchema);

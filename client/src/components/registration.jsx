@@ -17,7 +17,7 @@ const Register = () => {
   useEffect(() => {
     const fetchSpecializations = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/auth/specializations');
+        const response = await axios.get('http://localhost:5000/api/advicer/specializations');
         setSpecializationsOptions(response.data.map(spec => ({ value: spec.name, label: spec.name })));
       } catch (error) {
         console.error('Error fetching specializations:', error);
@@ -51,7 +51,7 @@ const Register = () => {
     data.append('specializations', JSON.stringify(formData.specializations));
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/register', data);
+      const response = await axios.post('http://localhost:5000/api/advicer/register', data);
       setMessage(response.data.message);
     } catch (error) {
       console.error(error.response.data);

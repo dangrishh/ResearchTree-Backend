@@ -34,7 +34,7 @@ const AdminDashboard = () => {
 
     const fetchSpecializations = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/auth/specializations');
+        const response = await axios.get('http://localhost:5000/api/admin/specializations');
         setSpecializations(response.data);
       } catch (error) {
         console.error('Error fetching specializations:', error);
@@ -85,7 +85,7 @@ const AdminDashboard = () => {
 
   const handleAddSpecialization = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/specializations', { name: newSpecialization });
+      const response = await axios.post('http://localhost:5000/api/admin/specializations', { name: newSpecialization });
       setSpecializations([...specializations, response.data]);
       setNewSpecialization('');
     } catch (error) {
@@ -95,7 +95,7 @@ const AdminDashboard = () => {
 
   const handleEditSpecialization = async (id, name) => {
     try {
-      const response = await axios.put(`http://localhost:5000/api/auth/specializations/${id}`, { name });
+      const response = await axios.put(`http://localhost:5000/api/admin/specializations/${id}`, { name });
       setSpecializations(specializations.map(spec => spec._id === id ? response.data : spec));
     } catch (error) {
       console.error('Error editing specialization:', error);
@@ -104,7 +104,7 @@ const AdminDashboard = () => {
 
   const handleDeleteSpecialization = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/auth/specializations/${id}`);
+      await axios.delete(`http://localhost:5000/api/admin/specializations/${id}`);
       setSpecializations(specializations.filter(spec => spec._id !== id));
     } catch (error) {
       console.error('Error deleting specialization:', error);

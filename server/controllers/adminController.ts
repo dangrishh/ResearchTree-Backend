@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Admin from '../models/Admin';
 import User from '../models/User'
+import Specialization from '../models/Specialization';
 
 const JWT_SECRET = 'your_jwt_secret';
 
@@ -116,5 +117,53 @@ export const deleteUser = async (req: Request, res: Response) => {
     res.json({ message: 'User deleted' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
+  }
+};
+
+
+export const getSpecializations = async (req: Request, res: Response) => {
+  try {
+    const specializations = await Specialization.find();
+    res.status(200).json(specializations);
+  } catch (error) {
+    res.status(500).json({ message: 'Something went wrong', error });
+  }
+};
+
+export const addSpecialization = async (req: Request, res: Response) => {
+  const { name } = req.body;
+  if (!name) {
+    return res.status(400).json({ message: 'Specialization name is required' });
+  }
+
+  try {
+    const newSpecialization = new Specialization({ name });
+    await newSpecialization.save();
+    res.status(201).json(newSpecialization);
+  } catch (error) {
+    console.error('Error adding specialization:', error);
+    res.status(500).json({ message: 'Something went wrong', error });
+  }
+};
+
+
+export const updateSpecialization = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { name } = req.body;
+  try {
+    const updatedSpecialization = await Specialization.findByIdAndUpdate(id, { name }, { new: true });
+    res.status(200).json(updatedSpecialization);
+  } catch (error) {
+    res.status(500).json({ message: 'Something went wrong', error });
+  }
+};
+
+export const deleteSpecialization = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    await Specialization.findByIdAndDelete(id);
+    res.status(200).json({ message: 'Specialization deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Something went wrong', error });
   }
 };

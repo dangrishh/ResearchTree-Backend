@@ -2,14 +2,14 @@ import express, { Router } from 'express';
 import { 
     registration, 
     login, 
-    getSpecializations, 
-    addSpecialization, 
-    updateSpecialization, 
-    deleteSpecialization,
-    createProposal, 
+    getSpecializations,
     getAllProposals, 
-    getProposalsByUserId 
-} from '../controllers/authControllers';
+    getProposalsByUserId,
+    listStudentsManage,
+    updateStatusStudent,
+    getAdviserStudents,
+    respondToStudent
+} from '../controllers/advicerControllers';
 
 import upload from '../middleware/upload';
 
@@ -19,14 +19,16 @@ router.post('/register', upload.single('profileImage'), registration);
 router.post('/login', login);
 
 router.get('/specializations', getSpecializations);
-router.post('/specializations', addSpecialization);
-router.put('/specializations/:id', updateSpecialization);
-router.delete('/specializations/:id', deleteSpecialization);
 
-
-router.post('/submit-proposal', createProposal);
 router.get('/proposals', getAllProposals);
 router.get('/proposals/:userId', getProposalsByUserId);
+
+
+// Adviser routes
+router.get('/advisor-students/:advisorId', getAdviserStudents);
+router.post('/respond-student', respondToStudent);
+router.get('/students-manage/:advisorId', listStudentsManage);
+router.put('/update-student-status', updateStatusStudent);
 
 
 export default router;
