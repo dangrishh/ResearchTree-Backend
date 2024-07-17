@@ -12,7 +12,7 @@ export const chooseAdvicer = async (req: Request, res: Response) => {
 
   try {
     const student = await User.findById(userId);
-    if (student?.chosenAdvisor) {
+    if (student?.chosenAdvisor && student.advisorStatus !== 'declined') {
       return res.status(400).json({ message: 'Advisor already chosen' });
     }
 
@@ -33,8 +33,8 @@ export const createProposal = async (req: Request, res: Response) => {
 
   try {
     const student = await User.findById(userId);
-    if (student?.chosenAdvisor) {
-      return res.status(400).json({ message: 'Cannot submit proposal after choosing advisor' });
+    if (student?.advisorStatus === 'accepted') {
+      return res.status(400).json({ message: 'Cannot submit proposal after advisor acceptance' });
     }
 
     const declinedAdvisors = student?.declinedAdvisors || [];
@@ -52,7 +52,7 @@ export const createProposal = async (req: Request, res: Response) => {
     console.error('Error creating proposal:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
-};
+}
 
 
 export const getStudentAdvisorInfo = async (req: Request, res: Response) => {

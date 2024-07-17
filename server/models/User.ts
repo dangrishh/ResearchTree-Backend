@@ -8,8 +8,8 @@ export interface IUser extends Document {
   profileImage: string;
   specializations: string[];
   isApproved: boolean;
-  chosenAdvisor: Schema.Types.ObjectId;
-  advisorStatus: 'accepted' | 'declined';
+  chosenAdvisor: Schema.Types.ObjectId | null;
+  advisorStatus: 'accepted' | 'declined' | null;
   declinedAdvisors: Schema.Types.ObjectId[];
 }
 
@@ -21,8 +21,8 @@ const userSchema = new Schema<IUser>({
   profileImage: { type: String, required: false },
   specializations: { type: [String], required: function() { return this.role === 'adviser'; } },
   isApproved: { type: Boolean, default: false },
-  chosenAdvisor: { type: Schema.Types.ObjectId, ref: 'User' },
-  advisorStatus: { type: String, enum: ['accepted', 'declined'] },
+  chosenAdvisor: { type: Schema.Types.ObjectId, ref: 'User', default: null },
+  advisorStatus: { type: String, enum: ['accepted', 'declined', null], default: null },
   declinedAdvisors: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 });
 

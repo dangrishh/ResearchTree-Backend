@@ -6,7 +6,6 @@ const DashboardStudent = () => {
   const [topAdvisors, setTopAdvisors] = useState([]);
   const [advisorInfo, setAdvisorInfo] = useState(null);
   const [advisorStatus, setAdvisorStatus] = useState(null);
-
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user'));
 
@@ -100,7 +99,9 @@ const DashboardStudent = () => {
         {topAdvisors.map((advisor) => (
           <li key={advisor._id}>
             {advisor.name}
-            {!advisorInfo && <button onClick={() => chooseAdvisor(advisor._id)}>Choose Advisor</button>}
+            {!advisorInfo || advisorStatus === 'declined' ? (
+              <button onClick={() => chooseAdvisor(advisor._id)}>Choose Advisor</button>
+            ) : null}
           </li>
         ))}
       </ul>
@@ -117,4 +118,3 @@ const DashboardStudent = () => {
 };
 
 export default DashboardStudent;
-  

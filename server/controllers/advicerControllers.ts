@@ -144,6 +144,7 @@ export const getAdviserStudents = async (req: Request, res: Response) => {
   }
 };
 
+
 export const respondToStudent = async (req: Request, res: Response) => {
   const { studentId, advisorId, status } = req.body;
 
@@ -153,7 +154,7 @@ export const respondToStudent = async (req: Request, res: Response) => {
 
   try {
     const student = await User.findById(studentId);
-    if (!student || student.chosenAdvisor.toString() !== advisorId) {
+    if (!student || !student.chosenAdvisor || student.chosenAdvisor.toString() !== advisorId) {
       return res.status(404).json({ message: 'Student not found or advisor mismatch' });
     }
     
