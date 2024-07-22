@@ -2,8 +2,14 @@ import { Request, Response } from 'express';
 import User from '../models/User';
 import Proposal from '../models/Proposal';
 import { analyzeProposal } from '../utils/nlp';
+import { ObjectId } from 'mongoose';
 
-export const chooseAdvicer = async (req: Request, res: Response) => {
+// Dummy function to fetch top advisors
+const getTopAdvisors = async () => {
+  return await User.find({ role: 'adviser', isApproved: true }).limit(5);
+};
+
+export const chooseAdvisor = async (req: Request, res: Response) => {
   const { userId, advisorId } = req.body;
 
   if (!userId || !advisorId) {
@@ -16,8 +22,21 @@ export const chooseAdvicer = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Advisor already chosen' });
     }
 
-    await User.findByIdAndUpdate(userId, { chosenAdvisor: advisorId, advisorStatus: null });
-    res.status(200).json({ message: 'Advisor chosen successfully' });
+    // Fetch top advisors
+    const topAdvisors = await getTopAdvisors();
+
+    // Exclude the chosen advisor from the panelists
+    const panelists = topAdvisors.filter(advisor => (advisor._id as string).toString() !== advisorId).slice(0, 3);
+
+    // Update chosen advisor and panelists for the student
+    if (student) {
+      student.chosenAdvisor = advisorId;
+      student.advisorStatus = 'pending';
+      student.panelists = panelists.map(panelist => panelist._id as ObjectId);
+      await student.save();
+    }
+
+    res.status(200).json({ message: 'Advisor chosen and panelists assigned successfully', student });
   } catch (error) {
     console.error('Error choosing advisor:', error);
     res.status(500).json({ message: 'Internal Server Error' });
@@ -59,11 +78,11 @@ export const getStudentAdvisorInfo = async (req: Request, res: Response) => {
   const { userId } = req.params;
 
   try {
-    const student = await User.findById(userId).populate('chosenAdvisor');
+    const student = await User.findById(userId).populate('chosenAdvisor').populate('panelists');
     if (!student) {
       return res.status(404).json({ message: 'Student not found' });
     }
-    res.status(200).json({ chosenAdvisor: student.chosenAdvisor, advisorStatus: student.advisorStatus });
+    res.status(200).json({ chosenAdvisor: student.chosenAdvisor, advisorStatus: student.advisorStatus, panelists: student.panelists });
   } catch (error) {
     console.error('Error fetching student advisor info:', error);
     res.status(500).json({ message: 'Internal Server Error' });

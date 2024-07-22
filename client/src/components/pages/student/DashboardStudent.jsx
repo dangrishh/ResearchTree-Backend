@@ -6,6 +6,7 @@ const DashboardStudent = () => {
   const [topAdvisors, setTopAdvisors] = useState([]);
   const [advisorInfo, setAdvisorInfo] = useState(null);
   const [advisorStatus, setAdvisorStatus] = useState(null);
+  const [panelists, setPanelists] = useState([]);
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user'));
 
@@ -20,6 +21,7 @@ const DashboardStudent = () => {
         const data = await response.json();
         setAdvisorInfo(data.chosenAdvisor);
         setAdvisorStatus(data.advisorStatus);
+        setPanelists(data.panelists || []);
       } else {
         const errorData = await response.json();
         console.error('Error fetching advisor info:', errorData.message);
@@ -110,6 +112,16 @@ const DashboardStudent = () => {
           <h2>Chosen Advisor</h2>
           <p>Name: {advisorInfo.name}</p>
           <p>Status: {advisorStatus}</p>
+        </div>
+      )}
+      {advisorInfo && advisorStatus === 'accepted' && panelists.length > 0 && (
+        <div>
+          <h2>Panelists</h2>
+          <ul>
+            {panelists.map((panelist) => (
+              <li key={panelist._id}>{panelist.name}</li>
+            ))}
+          </ul>
         </div>
       )}
       <button onClick={handleLogout}>Logout</button>

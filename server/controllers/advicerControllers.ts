@@ -135,7 +135,7 @@ export const getAdviserStudents = async (req: Request, res: Response) => {
   try {
     const acceptedStudents = await User.find({ chosenAdvisor: advisorId, advisorStatus: 'accepted' });
     const declinedStudents = await User.find({ chosenAdvisor: advisorId, advisorStatus: 'declined' });
-    const studentsToManage = await User.find({ chosenAdvisor: advisorId, advisorStatus: null });
+    const studentsToManage = await User.find({ chosenAdvisor: advisorId, advisorStatus: 'pending' || null });
 
     res.status(200).json({ acceptedStudents, declinedStudents, studentsToManage });
   } catch (error) {
@@ -164,6 +164,18 @@ export const respondToStudent = async (req: Request, res: Response) => {
     res.status(200).json({ message: `Student ${status} successfully` });
   } catch (error) {
     console.error('Error responding to student:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+export const getPanelistStudents = async (req: Request, res: Response) => {
+  const { advisorId } = req.params;
+
+  try {
+    const students = await User.find({ panelists: advisorId }).populate('panelists');
+    res.status(200).json({ panelistStudents: students });
+  } catch (error) {
+    console.error('Error fetching panelist students:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };

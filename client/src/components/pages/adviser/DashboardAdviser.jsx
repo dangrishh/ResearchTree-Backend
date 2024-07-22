@@ -5,11 +5,13 @@ const DashboardAdviser = () => {
   const [acceptedStudents, setAcceptedStudents] = useState([]);
   const [declinedStudents, setDeclinedStudents] = useState([]);
   const [studentsToManage, setStudentsToManage] = useState([]);
+  const [panelistStudents, setPanelistStudents] = useState([]);
   const user = JSON.parse(localStorage.getItem('user'));
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchStudents();
+    fetchPanelistStudents();
   }, []);
 
   const fetchStudents = async () => {
@@ -30,6 +32,25 @@ const DashboardAdviser = () => {
       }
     } catch (error) {
       console.error('Error fetching students:', error.message);
+    }
+  };
+
+  const fetchPanelistStudents = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/advicer/panelist-students/${user._id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setPanelistStudents(data.panelistStudents);
+      } else {
+        const errorData = await response.json();
+        console.error('Error fetching panelist students:', errorData.message);
+      }
+    } catch (error) {
+      console.error('Error fetching panelist students:', error.message);
     }
   };
 
@@ -66,7 +87,7 @@ const DashboardAdviser = () => {
       <p>Welcome, {user.name}</p>
       <p>Specializations: {user.specializations.join(', ')}</p>
       <img src={`http://localhost:5000/public/uploads/${user.profileImage}`} alt="Profile" />
-      
+
       <h2>Accepted Students</h2>
       <ul>
         {acceptedStudents.map((student) => (
@@ -75,7 +96,7 @@ const DashboardAdviser = () => {
           </li>
         ))}
       </ul>
-      
+
       <h2>Declined Students</h2>
       <ul>
         {declinedStudents.map((student) => (
@@ -84,7 +105,7 @@ const DashboardAdviser = () => {
           </li>
         ))}
       </ul>
-      
+
       <h2>Pending Students</h2>
       <ul>
         {studentsToManage.map((student) => (
@@ -95,7 +116,16 @@ const DashboardAdviser = () => {
           </li>
         ))}
       </ul>
-      
+
+      <h2>Panelist Students</h2>
+      <ul>
+        {panelistStudents.map((student) => (
+          <li key={student._id}>
+            {student.name}
+          </li>
+        ))}
+      </ul>
+
       <button onClick={handleLogout}>Logout</button>
     </div>
   );
