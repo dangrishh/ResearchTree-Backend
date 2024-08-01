@@ -37,9 +37,6 @@ const App = () => {
         {/* Adviser */}
         <Route path="/dashboard-adviser" element={<DashboardAdviser />} />
 
-        {/* Panelist */}
-        <Route path="/dashboard-panelist" element={<DashboardPanelist />} />
-
         {/* Admin */}
         <Route path="/admin" element={<LoginAdmin setToken={saveToken} />} />
         <Route path="/admin/register" element={<AdminRegister />} />

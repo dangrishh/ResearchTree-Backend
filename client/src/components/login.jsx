@@ -1,5 +1,3 @@
-// src/components/Login.jsx
-
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +6,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-  const [errorMessage, setErrorMessage] = useState(''); // For error messages
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -17,11 +15,9 @@ const Login = () => {
       const response = await axios.post('http://localhost:5000/api/advicer/login', { email, password });
       const { token, user } = response.data;
 
-      // Save token in localStorage
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
 
-      // Redirect based on user role
       switch (user.role) {
         case 'student':
           navigate('/dashboard-student');
@@ -29,23 +25,16 @@ const Login = () => {
         case 'adviser':
           navigate('/dashboard-adviser');
           break;
-        case 'panelist':
-          navigate('/dashboard-panelist');
-          break;
         default:
           break;
       }
     } catch (error) {
-      console.error(error.response.data);
-      if (error.response && error.response.status === 403) { // Forbidden
-        if (error.response.data.message === 'Account not yet accepted by admin') {
-          setErrorMessage('Your account is awaiting admin approval.');
-        } else {
-          setErrorMessage('Your credentials are incorrect.'); 
-        }
+      if (error.response && error.response.status === 403) {
+        setErrorMessage('Your account is awaiting admin approval.');
+      } else if (error.response && error.response.status === 400) {
+        setErrorMessage('Your credentials are incorrect.');
       } else {
-        console.error('An error occurred during login:', error); // Log to console for debugging
-        setErrorMessage('An unexpected error occurred.'); 
+        setErrorMessage('An unexpected error occurred.');
       }
     }
   };
@@ -62,6 +51,7 @@ const Login = () => {
         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
       </label>
       <br />
+      {errorMessage && <p>{errorMessage}</p>}
       <button type="submit">Login</button>
     </form>
   );

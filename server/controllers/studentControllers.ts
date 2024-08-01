@@ -8,6 +8,39 @@ import { ObjectId } from 'mongoose';
 const getTopAdvisors = async () => {
   return await User.find({ role: 'adviser', isApproved: true }).limit(5);
 };
+export const createProposal = async (req: Request, res: Response) => {
+  const { userId, proposalText } = req.body;
+
+  if (!userId || !proposalText) {
+    return res.status(400).json({ message: 'userId and proposalText are required' });
+  }
+
+  try {
+    const student = await User.findById(userId);
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    if (student.advisorStatus === 'accepted') {
+      return res.status(400).json({ message: 'Cannot submit proposal after advisor acceptance' });
+    }
+
+    const declinedAdvisors = student.declinedAdvisors || [];
+    const advisors = await User.find({
+      role: 'adviser',
+      isApproved: true,
+      _id: { $nin: declinedAdvisors }
+    });
+
+    const topAdvisors = await analyzeProposal(proposalText, advisors);
+
+    const newProposal = await Proposal.create({ userId, proposalText });
+    res.status(201).json({ proposal: newProposal, topAdvisors });
+  } catch (error) {
+    console.error('Error creating proposal:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
 
 export const chooseAdvisor = async (req: Request, res: Response) => {
   const { userId, advisorId } = req.body;
@@ -22,13 +55,9 @@ export const chooseAdvisor = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Advisor already chosen' });
     }
 
-    // Fetch top advisors
     const topAdvisors = await getTopAdvisors();
-
-    // Exclude the chosen advisor from the panelists
     const panelists = topAdvisors.filter(advisor => (advisor._id as string).toString() !== advisorId).slice(0, 3);
 
-    // Update chosen advisor and panelists for the student
     if (student) {
       student.chosenAdvisor = advisorId;
       student.advisorStatus = 'pending';
@@ -42,37 +71,6 @@ export const chooseAdvisor = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
-
-export const createProposal = async (req: Request, res: Response) => {
-  const { userId, proposalText } = req.body;
-
-  if (!userId || !proposalText) {
-    return res.status(400).json({ message: 'userId and proposalText are required' });
-  }
-
-  try {
-    const student = await User.findById(userId);
-    if (student?.advisorStatus === 'accepted') {
-      return res.status(400).json({ message: 'Cannot submit proposal after advisor acceptance' });
-    }
-
-    const declinedAdvisors = student?.declinedAdvisors || [];
-    const advisors = await User.find({
-      role: 'adviser',
-      isApproved: true,
-      _id: { $nin: declinedAdvisors }
-    });
-
-    const topAdvisors = analyzeProposal(proposalText, advisors);
-
-    const newProposal = await Proposal.create({ userId, proposalText });
-    res.status(201).json({ proposal: newProposal, topAdvisors });
-  } catch (error) {
-    console.error('Error creating proposal:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-}
-
 
 export const getStudentAdvisorInfo = async (req: Request, res: Response) => {
   const { userId } = req.params;

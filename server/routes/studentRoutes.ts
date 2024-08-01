@@ -8,7 +8,7 @@ import {
 const router: Router = express.Router();
 
 router.post('/submit-proposal', createProposal);
-router.post('/choose-advisor', chooseAdvisor) 
+router.post('/choose-advisor', chooseAdvisor);
 router.get('/student-advisor-info/:userId', getStudentAdvisorInfo);
 
 

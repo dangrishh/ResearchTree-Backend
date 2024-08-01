@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import CkEditorDocuments from '../../CKeditorDocuments';
 
 const DashboardStudent = () => {
   const [proposal, setProposal] = useState('');
@@ -7,6 +8,7 @@ const DashboardStudent = () => {
   const [advisorInfo, setAdvisorInfo] = useState(null);
   const [advisorStatus, setAdvisorStatus] = useState(null);
   const [panelists, setPanelists] = useState([]);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user'));
 
@@ -80,6 +82,26 @@ const DashboardStudent = () => {
     navigate('/login');
   };
 
+  const handleEditorSave = async (data) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/student/submit-proposal', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: user._id, proposalText: data }),
+      });
+      if (response.ok) {
+        console.log('Document saved successfully!');
+      } else {
+        const errorData = await response.json();
+        console.error('Error saving document:', errorData.message);
+      }
+    } catch (error) {
+      console.error('Error saving document:', error.message);
+    }
+  };
+
   return (
     <div>
       <h1>Student Dashboard</h1>
@@ -123,6 +145,10 @@ const DashboardStudent = () => {
             ))}
           </ul>
         </div>
+      )}
+      <button onClick={() => setIsEditorOpen(true)}>Upload Manuscript</button>
+      {isEditorOpen && (
+        <CkEditorDocuments userId={user._id} onSave={handleEditorSave} />
       )}
       <button onClick={handleLogout}>Logout</button>
     </div>

@@ -1,34 +1,31 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import User from '../models/User';
 
-export const authenticateToken = (req: Request & { user: any }, res: Response, next: NextFunction) => {
-  const token = req.header('Authorization')?.split(' ')[1];
+interface AuthRequest extends Request {
+  user?: any;
+}
 
+const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction): Response | void => {
+  const token = req.header('x-auth-token');
   if (!token) {
-    return res.status(401).json({ message: 'No token provided' });
+    return res.status(401).json({ message: 'No token, authorization denied' });
   }
-
-  jwt.verify(token, process.env.JWT_SECRET ?? '', (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: 'Failed to authenticate token' });
-    }
-
-    req.user = user;
+  try {
+    const decoded = jwt.verify(token, 'your_jwt_secret') as { id: string; role: string };
+    req.user = decoded;
     next();
-  });
+  } catch (error) {
+    return res.status(401).json({ message: 'Token is not valid' });
+  }
 };
 
-export const authorizeRoles = (roles: string[]) => {
-  return async (req: Request & { user: any }, res: Response, next: NextFunction) => {
-    try {
-      const user = await User.findById(req.user._id);
-      if (!user || !roles.includes(user.role)) {
-        return res.status(403).json({ message: 'Access forbidden: insufficient permissions' });
-      }
-      next();
-    } catch (error) {
-      return res.status(500).json({ message: 'Internal server error' });
+const authorizeRoles = (...roles: string[]) => {
+  return (req: AuthRequest, res: Response, next: NextFunction): Response | void => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ message: 'Access denied' });
     }
+    next();
   };
 };
+
+export { authenticateToken, authorizeRoles };

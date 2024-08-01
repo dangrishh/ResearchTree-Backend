@@ -62,7 +62,6 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-
 /* admin & advicer */
 
 // Get all proposals
@@ -75,7 +74,7 @@ export const getAllProposals = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
-
+/* admin & advicer */
 // Get proposals by user ID
 export const getProposalsByUserId = async (req: Request, res: Response) => {
   const { userId } = req.params;
@@ -88,7 +87,7 @@ export const getProposalsByUserId = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
-
+/* admin & advicer */
   export const listStudentsManage = async (req: Request, res: Response) => {
   const { advisorId } = req.params;
 
@@ -101,7 +100,7 @@ export const getProposalsByUserId = async (req: Request, res: Response) => {
   }
 };
 
-
+/* admin & advicer */
 export const updateStatusStudent = async (req: Request, res: Response) => {
   const { studentId, status } = req.body;
 
