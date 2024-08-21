@@ -54,6 +54,7 @@ const DashboardStudent = () => {
       console.error('Error submitting proposal:', error.message);
     }
   };
+  
 
   const chooseAdvisor = async (advisorId) => {
     try {

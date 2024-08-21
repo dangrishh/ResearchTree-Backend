@@ -1,16 +1,17 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import path from 'path';
 import advicerRoutes from './routes/advicerRoutes';
 import adminRoutes from './routes/adminRoutes';
-import studentRoutes from './routes/studentRoutes'
-import bodyParser from 'body-parser';
+import studentRoutes from './routes/studentRoutes';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 
 // Middleware
-app.use(bodyParser.json());
 app.use(cors());
 app.use(express.json());
 app.use('/public', express.static(path.join(__dirname, 'public')));
@@ -19,9 +20,8 @@ app.use('/api/student', studentRoutes);
 app.use('/api/advicer', advicerRoutes);
 app.use('/api/admin', adminRoutes);
 
-const PORT = process.env.PORT || 5000;
-const MONGO_URI = 'mongodb+srv://LSPU:admin@research-management-por.m3kzu45.mongodb.net/ResearchTru?retryWrites=true&w=majority&appName=Research-Management-Portal';
-
+const PORT = process.env.PORT;
+const MONGO_URI = process.env.MONGO_URI || 'your_default_mongo_uri';
 
 mongoose.connect(MONGO_URI)
   .then(() => {
@@ -32,4 +32,4 @@ mongoose.connect(MONGO_URI)
   })
   .catch(err => {
     console.error('Database connection error:', err);
-  });
+  });  

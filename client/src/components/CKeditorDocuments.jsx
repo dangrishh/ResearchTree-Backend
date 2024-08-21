@@ -107,11 +107,11 @@ import '../App.css';
  * Please update the following values with your actual tokens.
  * Instructions on how to obtain them: https://ckeditor.com/docs/trial/latest/guides/real-time/quick-start.html
  */
-const LICENSE_KEY = 'ZmVCVGxLbzBWQVJtTG56YnN1LzdKekUwR282dSt6ajJKSHR2OVV3Z3djR2s5a1Z1eXdIZUxBVHlxRlI0MEE9PS1NakF5TkRBNE1qUT0=';
+const LICENSE_KEY = 'S0lQc3hyVHBVazlLTjg1ZGE3cURaWXptWVN4ZktoUmRDWGV2aHF6eGdBTXFnQXg3alRxa203ekR1ZlB0cmc9PS1NakF5TkRBNU1UVT0=';
 /* const AI_API_URL = '<YOUR_AI_API_URL>'; */
-const CKBOX_TOKEN_URL = 'rnh71FMFgbSiztgmcRahk3TW5QSefOVxvgluC3BcUmD5ri8hUDkCEqgwI08f';
+const CKBOX_TOKEN_URL = 'https://109332.cke-cs.com/token/dev/PD8xCxUfanccra0H0r2zNNjMiInOfDF6v2ad?limit=10';
 const UNIQUE_CHANNEL_PER_DOCUMENT = 'channel-1'; // can you change, na ung user makakaaccess nito base on user.id
-const CLOUD_SERVICES_TOKEN_URL = 'https://109332.cke-cs.com/token/dev/017Be6zU0ahdaAFdLttZe7gxt0pLDNvBZg2S?limit=10';
+const CLOUD_SERVICES_TOKEN_URL = 'https://109332.cke-cs.com/token/dev/PD8xCxUfanccra0H0r2zNNjMiInOfDF6v2ad?limit=10';
 const CLOUD_SERVICES_WEBSOCKET_URL = 'wss://109332.cke-cs.com/ws';
 
 /**

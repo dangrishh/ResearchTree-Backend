@@ -1,4 +1,5 @@
-import { execFile } from 'child_process';
+"use strict";
+/* import { execFile } from 'child_process';
 import path from 'path';
 import { IUser } from '../models/User';
 
@@ -25,3 +26,4 @@ export const analyzeProposal = (proposal: string, advisors: IUser[]): Promise<IU
     });
   });
 };
+ */ 
