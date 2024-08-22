@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CkEditorDocuments from '../../CKeditorDocuments';
+import axios from 'axios'; // Import axios for making HTTP requests
 
 const DashboardStudent = () => {
   const [proposal, setProposal] = useState('');
@@ -54,7 +55,6 @@ const DashboardStudent = () => {
       console.error('Error submitting proposal:', error.message);
     }
   };
-  
 
   const chooseAdvisor = async (advisorId) => {
     try {
@@ -85,18 +85,19 @@ const DashboardStudent = () => {
 
   const handleEditorSave = async (data) => {
     try {
-      const response = await fetch('http://localhost:5000/api/student/submit-proposal', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId: user._id, proposalText: data }),
+      const userId = user._id;
+      const channelId = `${userId}-${Date.now()}`; // Generate unique channel ID
+
+      // Send the channel ID and proposal data to the backend
+      const response = await axios.post('http://localhost:5000/api/student/submit-proposal', {
+        userId,
+        proposalText: data,
+        channelId,
       });
-      if (response.ok) {
+      if (response.status === 200) {
         console.log('Document saved successfully!');
       } else {
-        const errorData = await response.json();
-        console.error('Error saving document:', errorData.message);
+        console.error('Error saving document:', response.data.message);
       }
     } catch (error) {
       console.error('Error saving document:', error.message);
@@ -124,9 +125,9 @@ const DashboardStudent = () => {
         {topAdvisors.map((advisor) => (
           <li key={advisor._id}>
             {advisor.name}
-            {!advisorInfo || advisorStatus === 'declined' ? (
+            {(!advisorInfo || advisorStatus === 'declined') && (
               <button onClick={() => chooseAdvisor(advisor._id)}>Choose Advisor</button>
-            ) : null}
+            )}
           </li>
         ))}
       </ul>

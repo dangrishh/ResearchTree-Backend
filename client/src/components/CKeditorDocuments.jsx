@@ -110,9 +110,11 @@ import '../App.css';
 const LICENSE_KEY = 'S0lQc3hyVHBVazlLTjg1ZGE3cURaWXptWVN4ZktoUmRDWGV2aHF6eGdBTXFnQXg3alRxa203ekR1ZlB0cmc9PS1NakF5TkRBNU1UVT0=';
 /* const AI_API_URL = '<YOUR_AI_API_URL>'; */
 const CKBOX_TOKEN_URL = 'https://109332.cke-cs.com/token/dev/PD8xCxUfanccra0H0r2zNNjMiInOfDF6v2ad?limit=10';
-const UNIQUE_CHANNEL_PER_DOCUMENT = 'channel-1'; // can you change, na ung user makakaaccess nito base on user.id
+/* const UNIQUE_CHANNEL_PER_DOCUMENT = 'channel-1'; // can you change, na ung user makakaaccess nito base on user.id */
 const CLOUD_SERVICES_TOKEN_URL = 'https://109332.cke-cs.com/token/dev/PD8xCxUfanccra0H0r2zNNjMiInOfDF6v2ad?limit=10';
 const CLOUD_SERVICES_WEBSOCKET_URL = 'wss://109332.cke-cs.com/ws';
+
+
 
 /**
  * The `AnnotationsSidebarToggler` plugin adds an icon to the right side of the editor.
@@ -235,7 +237,7 @@ class DocumentOutlineToggler extends Plugin {
 	}
 }
 
-export default function App() {
+export default function App({userId }) {
 	const editorPresenceRef = useRef(null);
 	const editorContainerRef = useRef(null);
 	const editorMenuBarRef = useRef(null);
@@ -253,6 +255,11 @@ export default function App() {
 
 		return () => setIsLayoutReady(false);
 	}, []);
+
+	// Generate the unique channel ID based on the user ID
+	const generateUniqueChannelId = (userId) => {
+		return `channel-${userId}`;
+	};
 
 	const editorConfig = {
 		toolbar: {
@@ -422,7 +429,7 @@ export default function App() {
 			webSocketUrl: CLOUD_SERVICES_WEBSOCKET_URL
 		},
 		collaboration: {
-			channelId: UNIQUE_CHANNEL_PER_DOCUMENT
+            channelId: generateUniqueChannelId(userId) // Use the generated channel ID
 		},
 		comments: {
 			editorConfig: {
@@ -658,6 +665,7 @@ export default function App() {
 						</div>
 					</div>
 				</div>
+				
 				<div className="revision-history" ref={editorRevisionHistoryRef}>
 					<div className="revision-history__wrapper">
 						<div className="revision-history__editor" ref={editorRevisionHistoryEditorRef}></div>

@@ -132,6 +132,21 @@ export const chooseAdvisor = async (req: Request, res: Response) => {
   }
 };
 
+export const postUploadManuscript = (req: Request, res: Response) => {
+  const { channelId, userId } = req.body;
+
+  if (!channelId || !userId) {
+    return res.status(400).json({ error: 'Missing channelId or userId' });
+  }
+
+  // Handle the unique channel ID and user ID
+  console.log(`Received upload request: channelId=${channelId}, userId=${userId}`);
+
+  // Here, you can associate the channelId with the userId and store it in your database if needed.
+
+  res.status(200).json({ message: 'Upload process started' });
+};
+
 export const getStudentAdvisorInfo = async (req: Request, res: Response) => {
   const { userId } = req.params;
 
