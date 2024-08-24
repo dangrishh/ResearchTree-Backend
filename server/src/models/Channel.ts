@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+/* import mongoose from 'mongoose';
 
 const ChannelSchema = new mongoose.Schema({
   userId: String,
@@ -9,3 +9,4 @@ const ChannelSchema = new mongoose.Schema({
 const Channel = mongoose.model('Channel', ChannelSchema);
 
 export default Channel;
+ */

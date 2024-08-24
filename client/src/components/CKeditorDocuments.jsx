@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 
+
 import {
 	DecoupledEditor,
 	Plugin,
@@ -106,13 +107,18 @@ import '../App.css';
 /**
  * Please update the following values with your actual tokens.
  * Instructions on how to obtain them: https://ckeditor.com/docs/trial/latest/guides/real-time/quick-start.html
- */
-const LICENSE_KEY = 'S0lQc3hyVHBVazlLTjg1ZGE3cURaWXptWVN4ZktoUmRDWGV2aHF6eGdBTXFnQXg3alRxa203ekR1ZlB0cmc9PS1NakF5TkRBNU1UVT0=';
-/* const AI_API_URL = '<YOUR_AI_API_URL>'; */
-const CKBOX_TOKEN_URL = 'https://109332.cke-cs.com/token/dev/PD8xCxUfanccra0H0r2zNNjMiInOfDF6v2ad?limit=10';
-/* const UNIQUE_CHANNEL_PER_DOCUMENT = 'channel-1'; // can you change, na ung user makakaaccess nito base on user.id */
-const CLOUD_SERVICES_TOKEN_URL = 'https://109332.cke-cs.com/token/dev/PD8xCxUfanccra0H0r2zNNjMiInOfDF6v2ad?limit=10';
-const CLOUD_SERVICES_WEBSOCKET_URL = 'wss://109332.cke-cs.com/ws';
+ 
+const LICENSE_KEY = process.env.REACT_APP_LICENSE_KEY;
+ const AI_API_URL = '<YOUR_AI_API_URL>'; 
+const CKBOX_TOKEN_URL = process.env.REACT_APP_CKBOX_TOKEN_URL;
+/* const UNIQUE_CHANNEL_PER_DOCUMENT = 'channel-1'; // can you change, na ung user makakaaccess nito base on user.id 
+const CLOUD_SERVICES_TOKEN_URL = process.env.REACT_APP_CLOUD_SERVICES_TOKEN_URL;
+const CLOUD_SERVICES_WEBSOCKET_URL = process.env.REACT_APP_CLOUD_SERVICES_WEBSOCKET_URL;*/
+
+const LICENSE_KEY = import.meta.env.VITE_APP_LICENSE_KEY;
+const CKBOX_TOKEN_URL = import.meta.env.VITE_APP_CKBOX_TOKEN_URL;
+const CLOUD_SERVICES_TOKEN_URL = import.meta.env.VITE_APP_CLOUD_SERVICES_TOKEN_URL;
+const CLOUD_SERVICES_WEBSOCKET_URL = import.meta.env.VITE_APP_CLOUD_SERVICES_WEBSOCKET_URL;
 
 
 
