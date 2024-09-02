@@ -9,7 +9,8 @@ import {
     updateStatusStudent,
     getAdviserStudents,
     getPanelistStudents,
-    respondToStudent
+    respondToStudent,
+    getToken
 } from '../controllers/advicerControllers';
 
 import upload from '../middleware/upload';
@@ -18,6 +19,9 @@ const router: Router = express.Router();
 
 router.post('/register', upload.single('profileImage'), registration);
 router.post('/login', login);
+
+// Add the route for CKEditor token
+router.get('/get-ckeditor-token', getToken); 
 
 router.get('/specializations', getSpecializations);
 

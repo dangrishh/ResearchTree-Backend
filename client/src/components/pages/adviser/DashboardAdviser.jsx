@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import CkEditorDocuments from '../../CKeditorDocuments';
 
 const DashboardAdviser = () => {
   const [acceptedStudents, setAcceptedStudents] = useState([]);
   const [declinedStudents, setDeclinedStudents] = useState([]);
   const [studentsToManage, setStudentsToManage] = useState([]);
   const [panelistStudents, setPanelistStudents] = useState([]);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [selectedStudentId, setSelectedStudentId] = useState(null); // Track the selected student
   const user = JSON.parse(localStorage.getItem('user'));
   const navigate = useNavigate();
 
@@ -75,6 +78,11 @@ const DashboardAdviser = () => {
     }
   };
 
+  const handleViewManuscript = (studentId) => {
+    setSelectedStudentId(studentId);
+    setIsEditorOpen(true);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -93,6 +101,7 @@ const DashboardAdviser = () => {
         {acceptedStudents.map((student) => (
           <li key={student._id}>
             {student.name}
+            <button onClick={() => handleViewManuscript(student._id)}>View Manuscript</button>
           </li>
         ))}
       </ul>
@@ -122,9 +131,14 @@ const DashboardAdviser = () => {
         {panelistStudents.map((student) => (
           <li key={student._id}>
             {student.name}
+            <button onClick={() => handleViewManuscript(student._id)}>View Manuscript</button>
           </li>
         ))}
       </ul>
+
+      {isEditorOpen && selectedStudentId && (
+        <CkEditorDocuments userId={selectedStudentId} channelId={selectedStudentId} />
+      )}
 
       <button onClick={handleLogout}>Logout</button>
     </div>

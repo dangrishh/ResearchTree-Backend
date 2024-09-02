@@ -69,7 +69,7 @@ const analyzeProposal = async (proposalText: string, advisors: IAdvisor[]): Prom
 };
 
 export const createProposal = async (req: Request, res: Response) => {
-  const { userId, proposalText } = req.body;
+  const { userId, proposalText, channelId, } = req.body;
 
   if (!userId || !proposalText) {
     return res.status(400).json({ message: 'userId and proposalText are required' });

@@ -6,7 +6,6 @@ import advicerRoutes from './routes/advicerRoutes';
 import adminRoutes from './routes/adminRoutes';
 import studentRoutes from './routes/studentRoutes';
 import * as dotenv from 'dotenv';
-
 dotenv.config();
 
 const app = express();

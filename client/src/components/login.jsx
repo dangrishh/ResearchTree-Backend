@@ -10,14 +10,14 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+  
     try {
       const response = await axios.post('http://localhost:5000/api/advicer/login', { email, password });
       const { token, user } = response.data;
-
+  
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
-
+  
       switch (user.role) {
         case 'student':
           navigate('/dashboard-student');
@@ -38,6 +38,7 @@ const Login = () => {
       }
     }
   };
+  
 
   return (
     <form onSubmit={handleLogin}>

@@ -4,6 +4,8 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import Specialization from '../models/Specialization';
 import Proposal from '../models/Proposal';
+import { generateToken } from '../utils/auth'; // Import generateToken
+import axios from 'axios';
 
 export const registration = async (req: Request, res: Response) => {
   const { name, email, password, role } = req.body;
@@ -54,13 +56,51 @@ export const login = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, 'your_jwt_secret', { expiresIn: '1h' });
+    const token = generateToken(user); // Generate the JWT using the utility function
 
     res.status(200).json({ token, user });
   } catch (error) {
-    res.status(500).json({ message: 'Something went wrong', error });
+    console.error('Login Error:', error);
+    res.status(500).json({ message: 'Something went wrong', error: (error as Error).message });
   }
 };
+
+const accessKey = 'fhEyIAZQfUaZp0EWjg1F48uyRSqFAYsQwSdvGmHf11RSsjLRiYViPo7zY41V';
+const environmentId = 'xrFOxf2xvbLZW9SVeF1Y';
+
+export const getToken = async (req: Request, res: Response) => {
+  // Define user data (replace with real data from your database or session)
+  const user = {
+      id: 'DanielDeTorres-123',
+      email: 'daniel@gmail.com',
+      name: 'Daniel De Torres'
+  };
+
+  const payload = {
+      aud: environmentId,
+      sub: user.id,
+      user: {
+          email: user.email,
+          name: user.name
+      },
+      auth: {
+          'collaboration': {
+              '*': {
+                  'role': 'writer'
+              }
+          }
+      }
+  };
+
+  try {
+      // Generate JWT token
+      const token = jwt.sign(payload, accessKey, { algorithm: 'HS256', expiresIn: '24h' });
+      res.send(token);
+  } catch (error) {
+      res.status(500).send('Error generating token');
+  }
+};
+
 
 /* admin & advicer */
 
@@ -178,3 +218,4 @@ export const getPanelistStudents = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+

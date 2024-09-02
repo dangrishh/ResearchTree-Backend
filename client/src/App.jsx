@@ -32,10 +32,11 @@ const App = () => {
         <Route path="/login" element={<Login setToken={saveToken} />} />
 
         {/* Student */}
-        <Route path="/dashboard-student" element={<DashboardStudent />} />
+        <Route path="/dashboard-student" element={token ? <DashboardStudent /> : <Login setToken={saveToken} />} />
 
         {/* Adviser */}
-        <Route path="/dashboard-adviser" element={<DashboardAdviser />} />
+        <Route path="/dashboard-adviser" element={token ? <DashboardAdviser /> : <Login setToken={saveToken} />} />
+
 
         {/* Admin */}
         <Route path="/admin" element={<LoginAdmin setToken={saveToken} />} />
