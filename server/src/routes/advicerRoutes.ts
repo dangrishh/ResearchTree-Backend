@@ -21,7 +21,7 @@ router.post('/register', upload.single('profileImage'), registration);
 router.post('/login', login);
 
 // Add the route for CKEditor token
-router.get('/get-ckeditor-token', getToken); 
+router.get('/get-ckeditor-token/:userId', getToken);
 
 router.get('/specializations', getSpecializations);
 
