@@ -116,8 +116,8 @@ const CLOUD_SERVICES_TOKEN_URL = process.env.REACT_APP_CLOUD_SERVICES_TOKEN_URL;
 const CLOUD_SERVICES_WEBSOCKET_URL = process.env.REACT_APP_CLOUD_SERVICES_WEBSOCKET_URL;*/
 
 const LICENSE_KEY = import.meta.env.VITE_APP_LICENSE_KEY;
-const CKBOX_TOKEN_URL = import.meta.env.VITE_APP_CKBOX_TOKEN_URL;
-const CLOUD_SERVICES_TOKEN_URL = import.meta.env.VITE_APP_CLOUD_SERVICES_TOKEN_URL;
+const CKBOX_TOKEN_URL = import.meta.env.VITE_APP_CKBOX_TOKEN_URL;/* 
+const CLOUD_SERVICES_TOKEN_URL = import.meta.env.VITE_APP_CLOUD_SERVICES_TOKEN_URL; */
 const CLOUD_SERVICES_WEBSOCKET_URL = import.meta.env.VITE_APP_CLOUD_SERVICES_WEBSOCKET_URL;
 
 
@@ -243,7 +243,7 @@ class DocumentOutlineToggler extends Plugin {
 	}
 }
 
-export default function App({userId }) {
+export default function App({userId, channelId }) {
 	const editorPresenceRef = useRef(null);
 	const editorContainerRef = useRef(null);
 	const editorMenuBarRef = useRef(null);
@@ -256,16 +256,17 @@ export default function App({userId }) {
 	const editorRevisionHistorySidebarRef = useRef(null);
 	const [isLayoutReady, setIsLayoutReady] = useState(false);
 
+
 	useEffect(() => {
 		setIsLayoutReady(true);
-
 		return () => setIsLayoutReady(false);
 	}, []);
 
-	// Generate the unique channel ID based on the user ID
-	const generateUniqueChannelId = (userId) => {
-		return `channel-${userId}`;
+	const generateUniqueChannelId = (channelId) => {	
+		return `channel-${channelId}`;
 	};
+
+	const generatedChannelId = generateUniqueChannelId(channelId);
 
 	const editorConfig = {
 		toolbar: {
@@ -335,6 +336,7 @@ export default function App({userId }) {
 			],
 			shouldNotGroupWhenFull: false
 		},
+		
 		plugins: [
 			AccessibilityHelp,
 			AIAssistant,
@@ -435,7 +437,13 @@ export default function App({userId }) {
 			webSocketUrl: CLOUD_SERVICES_WEBSOCKET_URL
 		},
 		collaboration: {
-            channelId: generateUniqueChannelId(userId) // Use the generated channel ID
+			channelId: generatedChannelId, // Pass the generated channelId here
+		},
+		presenceList: {
+			container: editorPresenceRef.current,
+        // Additional configuration.
+			collapseAt: 3,
+			onClick: ( userId, element ) => console.log( userId, element )
 		},
 		comments: {
 			editorConfig: {
@@ -606,9 +614,7 @@ export default function App({userId }) {
 			}
 		},
 		placeholder: 'Type or paste your content here!',
-		presenceList: {
-			container: editorPresenceRef.current
-		},
+
 		revisionHistory: {
 			editorContainer: editorContainerRef.current,
 			viewerContainer: editorRevisionHistoryRef.current,

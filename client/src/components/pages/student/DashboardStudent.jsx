@@ -11,6 +11,7 @@ const DashboardStudent = () => {
   const [panelists, setPanelists] = useState([]);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const navigate = useNavigate();
+  
   const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
@@ -83,26 +84,28 @@ const DashboardStudent = () => {
     navigate('/login');
   };
 
-  const handleEditorSave = async (data) => {
-    try {
-      const userId = user._id;
-      const channelId = `${userId}-${Date.now()}`; // Generate unique channel ID
+const handleEditorSave = async (data) => {
+  try {
+    const userId = user._id;
+    const channelId = `${userId}-${Date.now()}`; // Generate a unique channel ID for the manuscript
 
-      // Send the channel ID and proposal data to the backend
-      const response = await axios.post('http://localhost:5000/api/student/submit-proposal', {
-        userId,
-        proposalText: data,
-        channelId,
-      });
-      if (response.status === 200) {
-        console.log('Document saved successfully!');
-      } else {
-        console.error('Error saving document:', response.data.message);
-      }
-    } catch (error) {
-      console.error('Error saving document:', error.message);
+    // Send the channel ID, proposal data, and user ID to the backend
+    const response = await axios.post('http://localhost:5000/api/student/submit-proposal', {
+      userId,
+      proposalText: data,
+      channelId, // Include the channel ID in the request
+    });
+
+    if (response.status === 201) {
+      console.log('Document and proposal submitted successfully!');
+    } else {
+      console.error('Error saving document:', response.data.message);
     }
-  };
+  } catch (error) {
+    console.error('Error saving document:', error.message);
+  }
+};
+
 
   return (
     <div>

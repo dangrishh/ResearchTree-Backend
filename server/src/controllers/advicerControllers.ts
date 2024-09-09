@@ -37,40 +37,51 @@ export const registration = async (req: Request, res: Response) => {
   }
 };
 
+
+
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+      const user = await User.findOne({ email });
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
 
-    if (!user.isApproved) {
-      return res.status(403).json({ message: 'Your account has not been approved by the admin yet.' });
-    }
+      if (!user.isApproved) {
+          return res.status(403).json({ message: 'Your account has not been approved by the admin yet.' });
+      }
 
-    const isPasswordCorrect = await bcrypt.compare(password, user.password);
-    if (!isPasswordCorrect) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
+      const isPasswordCorrect = await bcrypt.compare(password, user.password);
+      if (!isPasswordCorrect) {
+          return res.status(400).json({ message: 'Invalid credentials' });
+      }
 
-    res.status(200).json({ user });
+      // Create the token with user info
+      const token = jwt.sign(
+          { id: user._id, email: user.email, role: user.role },
+          process.env.JWT_SECRET as string,
+          { expiresIn: '1h' }
+      );
+
+      // Send the token and user information
+      res.status(200).json({ token, user });
   } catch (error) {
-    console.error('Login Error:', error);
-    res.status(500).json({ message: 'Something went wrong', error: (error as Error).message });
+      console.error('Login Error:', error);
+      res.status(500).json({ message: 'Something went wrong', error: (error as Error).message });
   }
 };
 
-const accessKey = 'fhEyIAZQfUaZp0EWjg1F48uyRSqFAYsQwSdvGmHf11RSsjLRiYViPo7zY41V';
-const environmentId = 'xrFOxf2xvbLZW9SVeF1Y';
 
 export const getToken = async (req: Request, res: Response) => {
+
+  const accessKey = 'fhEyIAZQfUaZp0EWjg1F48uyRSqFAYsQwSdvGmHf11RSsjLRiYViPo7zY41V';
+  const environmentId = 'xrFOxf2xvbLZW9SVeF1Y';
+
     try {
         const userId = req.params.userId;
         console.log('Fetching user with ID:', userId);
 
-        // Fetch the user from the database
         const user = await User.findById(userId).exec();
         if (!user) {
             return res.status(404).send('User not found');
@@ -81,7 +92,8 @@ export const getToken = async (req: Request, res: Response) => {
             sub: (user._id as string).toString(),
             user: {
                 email: user.email,
-                name: user.name
+                name: user.name,
+                role: user.role,
             },
             auth: {
                 'collaboration': {
@@ -94,7 +106,6 @@ export const getToken = async (req: Request, res: Response) => {
 
         console.log('Payload for JWT:', payload);
 
-        // Generate the JWT token
         const token = jwt.sign(payload, accessKey, { algorithm: 'HS256', expiresIn: '24h' });
         res.send(token);
     } catch (error) {

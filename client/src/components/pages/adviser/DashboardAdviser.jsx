@@ -8,7 +8,8 @@ const DashboardAdviser = () => {
   const [studentsToManage, setStudentsToManage] = useState([]);
   const [panelistStudents, setPanelistStudents] = useState([]);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
-  const [selectedStudentId, setSelectedStudentId] = useState(null); // Track the selected student
+  const [selectedStudentId, setSelectedStudentId] = useState(null);
+  const [selectedChannelId, setSelectedChannelId] = useState(null); // Store channelId
   const user = JSON.parse(localStorage.getItem('user'));
   const navigate = useNavigate();
 
@@ -78,10 +79,12 @@ const DashboardAdviser = () => {
     }
   };
 
-  const handleViewManuscript = (studentId) => {
+  const handleViewManuscript = (studentId, channelId) => {
     setSelectedStudentId(studentId);
+    setSelectedChannelId(channelId); // Set the correct channelId for the student's manuscript
     setIsEditorOpen(true);
   };
+  
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -101,7 +104,7 @@ const DashboardAdviser = () => {
         {acceptedStudents.map((student) => (
           <li key={student._id}>
             {student.name}
-            <button onClick={() => handleViewManuscript(student._id)}>View Manuscript</button>
+            <button onClick={() => handleViewManuscript(student._id, student.channelId)}>View Manuscript</button>
           </li>
         ))}
       </ul>
@@ -131,14 +134,19 @@ const DashboardAdviser = () => {
         {panelistStudents.map((student) => (
           <li key={student._id}>
             {student.name}
-            <button onClick={() => handleViewManuscript(student._id)}>View Manuscript</button>
+            <button onClick={() => handleViewManuscript(student._id, student.channelId)}>View Manuscript</button>
           </li>
         ))}
       </ul>
 
-      {isEditorOpen && selectedStudentId && (
-        <CkEditorDocuments userId={selectedStudentId} channelId={selectedStudentId} />
-      )}
+{/*       {isEditorOpen && selectedStudentId && (
+        <CkEditorDocuments userId={selectedStudentId} channelId={selectedChannelId} onClose={() => setIsEditorOpen(false)} />
+      )} */}
+
+    {isEditorOpen && selectedStudentId && (
+      <CkEditorDocuments userId={user._id} channelId={selectedChannelId} onClose={() => setIsEditorOpen(false)} />
+    )}
+
 
       <button onClick={handleLogout}>Logout</button>
     </div>

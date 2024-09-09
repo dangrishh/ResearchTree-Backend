@@ -9,6 +9,7 @@ interface IAdvisor {
 }
 
 interface IStudent extends Document {
+  channelId: string;
   _id: ObjectId;
   advisorStatus: string;
   chosenAdvisor: ObjectId | null;
@@ -69,22 +70,30 @@ const analyzeProposal = async (proposalText: string, advisors: IAdvisor[]): Prom
 };
 
 export const createProposal = async (req: Request, res: Response) => {
-  const { userId, proposalText, channelId, } = req.body;
+  const { userId, proposalText } = req.body;
 
   if (!userId || !proposalText) {
     return res.status(400).json({ message: 'userId and proposalText are required' });
   }
 
   try {
+    // Find the student by userId
     const student = await User.findById(userId) as IStudent | null;
     if (!student) { 
       return res.status(404).json({ message: 'Student not found' });
     }
 
+    // Prevent proposal submission if the advisor has already accepted
     if (student.advisorStatus === 'accepted') {
       return res.status(400).json({ message: 'Cannot submit proposal after advisor acceptance' });
     }
 
+    // Generate a unique channelId based on the userId and current timestamp
+    const channelId = `${userId}-${Date.now()}`;
+    student.channelId = channelId;
+    await student.save(); // Save the updated channelId to the student's record
+
+    // Fetch advisors excluding those that the student has declined
     const declinedAdvisors = student.declinedAdvisors || [];
     const advisors = await User.find({
       role: 'adviser',
@@ -92,10 +101,14 @@ export const createProposal = async (req: Request, res: Response) => {
       _id: { $nin: declinedAdvisors }
     });
 
+    // Analyze proposal and get top advisors based on matching
     const topAdvisors = await analyzeProposal(proposalText, advisors as IAdvisor[]);
 
+    // Create and save the new proposal
     const newProposal = await Proposal.create({ userId, proposalText });
-    res.status(201).json({ proposal: newProposal, topAdvisors });
+
+    // Respond with the created proposal, top advisors, and the generated channelId
+    res.status(201).json({ proposal: newProposal, topAdvisors, channelId });
   } catch (error) {
     console.error('Error creating proposal:', error);
     res.status(500).json({ message: 'Internal Server Error' });

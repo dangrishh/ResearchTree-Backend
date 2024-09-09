@@ -10,35 +10,43 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-  
+
     try {
-      const response = await axios.post('http://localhost:5000/api/advicer/login', { email, password });
-      const { token, user } = response.data;
-  
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-  
-      switch (user.role) {
-        case 'student':
-          navigate('/dashboard-student');
-          break;
-        case 'adviser':
-          navigate('/dashboard-adviser');
-          break;
-        default:
-          break;
-      }
+        const response = await axios.post('http://localhost:5000/api/advicer/login', { email, password });
+        
+        const { token, user } = response.data;
+
+        if (!user || !user.role) {
+            setErrorMessage('Invalid login response');
+            return;
+        }
+
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+
+        switch (user.role) {
+            case 'student':
+                navigate('/dashboard-student');
+                break;
+            case 'adviser':
+                navigate('/dashboard-adviser');
+                break;
+            default:
+                setErrorMessage('Invalid user role');
+                break;
+        }
     } catch (error) {
-      if (error.response && error.response.status === 403) {
-        setErrorMessage('Your account is awaiting admin approval.');
-      } else if (error.response && error.response.status === 400) {
-        setErrorMessage('Your credentials are incorrect.');
-      } else {
-        setErrorMessage('An unexpected error occurred.');
-      }
+        console.error('Login Error:', error);
+
+        if (error.response && error.response.status === 403) {
+            setErrorMessage('Your account is awaiting admin approval.');
+        } else if (error.response && error.response.status === 400) {
+            setErrorMessage('Your credentials are incorrect.');
+        } else {
+            setErrorMessage('An unexpected error occurred.');
+        }
     }
-  };
-  
+};
 
   return (
     <form onSubmit={handleLogin}>

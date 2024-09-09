@@ -12,6 +12,7 @@ export interface IUser extends Document {
   advisorStatus: 'accepted' | 'declined' | 'pending' | null;
   declinedAdvisors: Schema.Types.ObjectId[];
   panelists: Schema.Types.ObjectId[];
+  
 }
 
 const userSchema: Schema = new Schema<IUser>({
