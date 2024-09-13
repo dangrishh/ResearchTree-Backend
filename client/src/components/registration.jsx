@@ -10,9 +10,25 @@ const Register = () => {
     role: 'student',
     profileImage: null,
     specializations: [],
+    course: '', // For student course
+    year: '', // For student year
+    handleNumber: '', // For adviser handle number
   });
   const [specializationsOptions, setSpecializationsOptions] = useState([]);
   const [message, setMessage] = useState('');
+
+  // Generate years from 1900 to 2100
+  const startYear = 1900;
+  const endYear = 2100;
+  const yearOptions = Array.from({ length: endYear - startYear + 1 }, (_, i) => ({
+    value: startYear + i,
+    label: startYear + i,
+  }));
+
+  const courseOptions = [
+    { value: 'BSIT', label: 'BSIT' },
+    { value: 'BSCS', label: 'BSCS' },
+  ];
 
   useEffect(() => {
     const fetchSpecializations = async () => {
@@ -49,6 +65,9 @@ const Register = () => {
     data.append('role', formData.role);
     data.append('profileImage', formData.profileImage);
     data.append('specializations', JSON.stringify(formData.specializations));
+    data.append('course', formData.course);
+    data.append('year', formData.year);
+    data.append('handleNumber', formData.handleNumber);
 
     try {
       const response = await axios.post('http://localhost:5000/api/advicer/register', data);
@@ -84,20 +103,60 @@ const Register = () => {
         </select>
       </label>
       <br />
-      {formData.role === 'adviser' && (
-        <label>
-          Specializations:
-          <Select
-            isMulti
-            name="specializations"
-            options={specializationsOptions}
-            className="basic-multi-select"
-            classNamePrefix="select"
-            onChange={handleSpecializationsChange}
-          />
-        </label>
+
+      {/* If role is student, show course and year fields */}
+      {formData.role === 'student' && (
+        <>
+          <label>
+            Course:
+            <select name="course" value={formData.course} onChange={handleChange} required>
+              {courseOptions.map((course) => (
+                <option key={course.value} value={course.value}>{course.label}</option>
+              ))}
+            </select>
+          </label>
+          <br />
+          <label>
+            Year:
+            <select name="year" value={formData.year} onChange={handleChange} required>
+              {yearOptions.map((year) => (
+                <option key={year.value} value={year.value}>{year.label}</option>
+              ))}
+            </select>
+          </label>
+          <br />
+        </>
       )}
-      <br />
+
+      {/* If role is adviser, show specializations and handle number fields */}
+      {formData.role === 'adviser' && (
+        <>
+          <label>
+            Specializations:
+            <Select
+              isMulti
+              name="specializations"
+              options={specializationsOptions}
+              className="basic-multi-select"
+              classNamePrefix="select"
+              onChange={handleSpecializationsChange}
+            />
+          </label>
+          <br />
+          <label>
+            Handle Number (No. of Advisees):
+            <input
+              type="number"
+              name="handleNumber"
+              value={formData.handleNumber}
+              onChange={handleChange}
+              required
+            />
+          </label>
+          <br />
+        </>
+      )}
+
       <label>
         Profile Image:
         <input type="file" name="profileImage" onChange={handleFileChange} />

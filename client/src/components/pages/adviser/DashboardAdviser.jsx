@@ -50,8 +50,7 @@ const DashboardAdviser = () => {
         const data = await response.json();
         setPanelistStudents(data.panelistStudents);
       } else {
-        const errorData = await response.json();
-        console.error('Error fetching panelist students:', errorData.message);
+        console.error('Error fetching panelist students');
       }
     } catch (error) {
       console.error('Error fetching panelist students:', error.message);
@@ -69,6 +68,12 @@ const DashboardAdviser = () => {
         body: JSON.stringify({ studentId, advisorId: user._id, status }),
       });
       if (response.ok) {
+        if (status === 'accepted') {
+          fetchPanelistStudents(); // Refresh the list of panelist students
+        } else {
+          // Optionally clear the panelist students list if necessary
+          clearPanelistStudents();
+        }
         fetchStudents(); // Refresh the list of students
       } else {
         const errorData = await response.json();
@@ -78,6 +83,7 @@ const DashboardAdviser = () => {
       console.error('Error responding to student:', error.message);
     }
   };
+  
 
   const handleViewManuscript = (studentId, channelId) => {
     setSelectedStudentId(studentId);
@@ -96,6 +102,7 @@ const DashboardAdviser = () => {
     <div>
       <h1>Adviser Dashboard</h1>
       <p>Welcome, {user.name}</p>
+      <p>Handle Student: {user.handleNumber}</p>
       <p>Specializations: {user.specializations.join(', ')}</p>
       <img src={`http://localhost:5000/public/uploads/${user.profileImage}`} alt="Profile" />
 

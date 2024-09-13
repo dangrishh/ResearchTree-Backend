@@ -9,6 +9,7 @@ const DashboardStudent = () => {
   const [advisorInfo, setAdvisorInfo] = useState(null);
   const [advisorStatus, setAdvisorStatus] = useState(null);
   const [panelists, setPanelists] = useState([]);
+  const [channelId, setChannelId] = useState(null); // State for channel ID
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const navigate = useNavigate();
   
@@ -26,6 +27,7 @@ const DashboardStudent = () => {
         setAdvisorInfo(data.chosenAdvisor);
         setAdvisorStatus(data.advisorStatus);
         setPanelists(data.panelists || []);
+        setChannelId(data.channelId || ''); // Set channelId from the response
       } else {
         const errorData = await response.json();
         console.error('Error fetching advisor info:', errorData.message);
@@ -44,9 +46,12 @@ const DashboardStudent = () => {
         },
         body: JSON.stringify({ userId: user._id, proposalText: proposal }),
       });
+
       if (response.ok) {
         const data = await response.json();
         setTopAdvisors(data.topAdvisors);
+        setChannelId(data.channelId); // Update channelId with the response
+        console.log('Channel ID:', data.channelId); // Use the returned channelId as needed
         console.log('Proposal submitted successfully!');
       } else {
         const errorData = await response.json();
@@ -84,33 +89,11 @@ const DashboardStudent = () => {
     navigate('/login');
   };
 
-const handleEditorSave = async (data) => {
-  try {
-    const userId = user._id;
-    const channelId = `${userId}-${Date.now()}`; // Generate a unique channel ID for the manuscript
-
-    // Send the channel ID, proposal data, and user ID to the backend
-    const response = await axios.post('http://localhost:5000/api/student/submit-proposal', {
-      userId,
-      proposalText: data,
-      channelId, // Include the channel ID in the request
-    });
-
-    if (response.status === 201) {
-      console.log('Document and proposal submitted successfully!');
-    } else {
-      console.error('Error saving document:', response.data.message);
-    }
-  } catch (error) {
-    console.error('Error saving document:', error.message);
-  }
-};
-
-
   return (
     <div>
       <h1>Student Dashboard</h1>
       <p>Welcome, {user.name}</p>
+      <p>Course: {user.course}</p>
       <img src={`http://localhost:5000/public/uploads/${user.profileImage}`} alt="Profile" />
       {(!advisorInfo || advisorStatus === 'declined') && (
         <form onSubmit={(e) => { e.preventDefault(); submitProposal(); }}>
@@ -153,7 +136,7 @@ const handleEditorSave = async (data) => {
       )}
       <button onClick={() => setIsEditorOpen(true)}>Upload Manuscript</button>
       {isEditorOpen && (
-        <CkEditorDocuments userId={user._id} onSave={handleEditorSave} />
+        <CkEditorDocuments userId={user._id} channelId={user.channelId}/> 
       )}
       <button onClick={handleLogout}>Logout</button>
     </div>

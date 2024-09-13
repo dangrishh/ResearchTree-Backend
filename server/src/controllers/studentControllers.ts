@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import mongoose, { Document, ObjectId } from 'mongoose';
 import User from '../models/User';
 import Proposal from '../models/Proposal';
+import { v4 as uuidv4 } from 'uuid'; // Using UUID to generate a unique channel ID
 
 interface IAdvisor {
   id: string;
@@ -88,8 +89,8 @@ export const createProposal = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Cannot submit proposal after advisor acceptance' });
     }
 
-    // Generate a unique channelId based on the userId and current timestamp
-    const channelId = `${userId}-${Date.now()}`;
+    // Generate a unique channelId using uuidv4
+    const channelId = uuidv4();
     student.channelId = channelId;
     await student.save(); // Save the updated channelId to the student's record
 

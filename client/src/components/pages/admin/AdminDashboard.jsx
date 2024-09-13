@@ -130,6 +130,8 @@ const AdminDashboard = () => {
             <p>Name: {user.name}</p>
             <p>Email: {user.email}</p>
             <p>Role: {user.role}</p>
+            <p>Course: {user.course}</p>
+            <p>Handle Student: {user.handleNumber}</p>
             <p>Specializations: {user.specializations.join(', ')}</p>
             {user.profileImage && <img className="w-16 h-16 rounded-full" src={`http://localhost:5000/public/uploads/${user.profileImage}`} alt="Profile" />}
             <div className="mt-4">
@@ -145,6 +147,8 @@ const AdminDashboard = () => {
             <p>Name: {user.name}</p>
             <p>Email: {user.email}</p>
             <p>Role: {user.role}</p>
+            <p>Course: {user.course}</p>
+            <p>Handle Student: {user.handleNumber}</p>
             <p>Specializations: {user.specializations.join(', ')}</p>
             {user.profileImage && <img className="w-16 h-16 rounded-full" src={`http://localhost:5000/public/uploads/${user.profileImage}`} alt="Profile" />}
             <div className="mt-4">

@@ -4,10 +4,9 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import Specialization from '../models/Specialization';
 import Proposal from '../models/Proposal';
-import axios from 'axios';
 
 export const registration = async (req: Request, res: Response) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password, role, course, year, handleNumber } = req.body;
   const specializations = JSON.parse(req.body.specializations);
   const profileImage = (req as any).file?.filename;
 
@@ -26,6 +25,9 @@ export const registration = async (req: Request, res: Response) => {
       role,
       profileImage,
       specializations,
+      course, // Add course
+      year,   // Add year
+      handleNumber, // Add handle number
       isApproved: false,
     });
 
@@ -223,7 +225,8 @@ export const getPanelistStudents = async (req: Request, res: Response) => {
   const { advisorId } = req.params;
 
   try {
-    const students = await User.find({ panelists: advisorId }).populate('panelists');
+    // Filter students who have been accepted by the panelist
+    const students = await User.find({ panelists: advisorId, advisorStatus: 'accepted' }).populate('panelists');
     res.status(200).json({ panelistStudents: students });
   } catch (error) {
     console.error('Error fetching panelist students:', error);
